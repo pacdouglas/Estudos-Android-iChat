@@ -1,4 +1,4 @@
-package br.com.douglaspac.ichat_alura;
+package br.com.douglaspac.ichat;
 
 import org.junit.Test;
 
