@@ -10,17 +10,16 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import br.com.douglaspac.ichat.R;
 import br.com.douglaspac.ichat.adapter.MensagemAdapter;
+import br.com.douglaspac.ichat.app.ChatApplication;
 import br.com.douglaspac.ichat.callback.EnviarMensagemCallback;
 import br.com.douglaspac.ichat.callback.OuvirMensagemCallback;
+import br.com.douglaspac.ichat.component.ChatComponent;
 import br.com.douglaspac.ichat.modelo.Mensagem;
 import br.com.douglaspac.ichat.service.ChatService;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 
 public class MainActivity extends AppCompatActivity
@@ -29,12 +28,21 @@ public class MainActivity extends AppCompatActivity
     private int idDoCliente = 1;
     private ListView listaDeMensagens;
     private  List<Mensagem> mensagens;
+
+    @Inject
     ChatService chatService;
+
+    private ChatComponent component;
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        ChatApplication app = (ChatApplication) getApplication();
+        component = app.getComponent();
+        component.inject(this);
+
         listaDeMensagens = (ListView) findViewById(R.id.lv_mensagens);
         mensagens = new ArrayList<>();
 
@@ -43,12 +51,6 @@ public class MainActivity extends AppCompatActivity
 
         final EditText editText = (EditText) findViewById(R.id.et_texto);
         Button button = (Button) findViewById(R.id.btn_enviar);
-
-        Retrofit retrofit = new Retrofit.Builder()
-                                    .baseUrl("http://192.168.0.21:8080/")
-                                    .addConverterFactory(GsonConverterFactory.create())
-                                    .build();
-        chatService = retrofit.create(ChatService.class);
 
         ouvirMensagem();
         button.setOnClickListener(new View.OnClickListener()
