@@ -20,14 +20,23 @@ import br.com.douglaspac.ichat.callback.OuvirMensagemCallback;
 import br.com.douglaspac.ichat.component.ChatComponent;
 import br.com.douglaspac.ichat.modelo.Mensagem;
 import br.com.douglaspac.ichat.service.ChatService;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 
 public class MainActivity extends AppCompatActivity
 {
 
     private int idDoCliente = 1;
-    private ListView listaDeMensagens;
-    private  List<Mensagem> mensagens;
+
+    @BindView(R.id.et_texto)
+    EditText editText;
+    @BindView(R.id.lv_mensagens)
+    ListView listaDeMensagens;
+    @BindView(R.id.btn_enviar)
+    Button button;
+    private List<Mensagem> mensagens;
 
     @Inject
     ChatService chatService;
@@ -42,26 +51,20 @@ public class MainActivity extends AppCompatActivity
         ChatApplication app = (ChatApplication) getApplication();
         component = app.getComponent();
         component.inject(this);
+        ButterKnife.bind(this);
 
-        listaDeMensagens = (ListView) findViewById(R.id.lv_mensagens);
         mensagens = new ArrayList<>();
-
         MensagemAdapter adapter = new MensagemAdapter(idDoCliente, mensagens, this);
         listaDeMensagens.setAdapter(adapter);
 
-        final EditText editText = (EditText) findViewById(R.id.et_texto);
-        Button button = (Button) findViewById(R.id.btn_enviar);
-
         ouvirMensagem();
-        button.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                chatService.enviar(new Mensagem(idDoCliente, editText.getText().toString()))
-                        .enqueue(new EnviarMensagemCallback(this));
-            }
-        });
+    }
+
+    @OnClick(R.id.btn_enviar)
+    public void enviarMensagem()
+    {
+        chatService.enviar(new Mensagem(idDoCliente, editText.getText().toString()))
+                .enqueue(new EnviarMensagemCallback());
     }
 
     public void colocarNaLista(Mensagem mensagem)

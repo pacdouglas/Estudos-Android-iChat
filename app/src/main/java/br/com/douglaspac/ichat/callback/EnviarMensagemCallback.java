@@ -12,7 +12,7 @@ import retrofit2.Response;
 
 public class EnviarMensagemCallback implements Callback<Void>
 {
-    public EnviarMensagemCallback(View.OnClickListener onClickListener)
+    public EnviarMensagemCallback()
     {
     }
 
