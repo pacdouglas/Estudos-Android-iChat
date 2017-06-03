@@ -1,6 +1,7 @@
 package br.com.douglaspac.ichat.component;
 
 import br.com.douglaspac.ichat.activity.MainActivity;
+import br.com.douglaspac.ichat.adapter.MensagemAdapter;
 import br.com.douglaspac.ichat.module.ChatModule;
 import dagger.Component;
 
@@ -12,4 +13,5 @@ import dagger.Component;
 public interface ChatComponent
 {
     void inject(MainActivity mainActivity);
+    void inject(MensagemAdapter mensagemAdapter);
 }

@@ -1,5 +1,9 @@
 package br.com.douglaspac.ichat.module;
 
+import android.app.Application;
+
+import com.squareup.picasso.Picasso;
+
 import br.com.douglaspac.ichat.service.ChatService;
 import dagger.Module;
 import dagger.Provides;
@@ -13,6 +17,13 @@ import retrofit2.converter.gson.GsonConverterFactory;
 @Module
 public class ChatModule
 {
+    private Application app;
+
+    public ChatModule(Application app)
+    {
+        this.app = app;
+    }
+
     @Provides
     public ChatService getChatService()
     {
@@ -22,5 +33,12 @@ public class ChatModule
                 .build();
         ChatService chatService = retrofit.create(ChatService.class);
         return chatService;
+    }
+
+    @Provides
+    public Picasso getPicasso()
+    {
+        Picasso picasso = new Picasso.Builder(app).build();
+        return picasso;
     }
 }
