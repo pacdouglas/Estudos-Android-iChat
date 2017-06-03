@@ -1,7 +1,9 @@
 package br.com.douglaspac.ichat.activity;
 
+import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -12,6 +14,7 @@ import com.squareup.picasso.Picasso;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,12 +72,26 @@ public class MainActivity extends AppCompatActivity
         ButterKnife.bind(this);
         picasso.with(this).load("http://api.adorable.io/avatars/285/"+idDoCliente+".png").into(avatar);
 
-        mensagens = new ArrayList<>();
+        if(savedInstanceState != null)
+        {
+            mensagens = (List<Mensagem>) savedInstanceState.getSerializable("mensagens");
+        }
+        else
+        {
+            mensagens = new ArrayList<>();
+        }
         MensagemAdapter adapter = new MensagemAdapter(idDoCliente, mensagens, this);
         listaDeMensagens.setAdapter(adapter);
 
         eventBus.register(this);
         ouvirMensagem(null);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState)
+    {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable("mensagens", (ArrayList<Mensagem>) mensagens);
     }
 
     @Override
@@ -89,6 +106,10 @@ public class MainActivity extends AppCompatActivity
     {
         chatService.enviar(new Mensagem(idDoCliente, editText.getText().toString()))
                 .enqueue(new EnviarMensagemCallback());
+
+        editText.getText().clear();
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(editText.getWindowToken(), 0);
     }
 
     @Subscribe
