@@ -1,6 +1,14 @@
 package br.com.douglaspac.ichat.callback;
 
+import android.content.Context;
+import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
+
+import org.greenrobot.eventbus.EventBus;
+
 import br.com.douglaspac.ichat.activity.MainActivity;
+import br.com.douglaspac.ichat.event.FailureEvent;
+import br.com.douglaspac.ichat.event.MensagemEvento;
 import br.com.douglaspac.ichat.modelo.Mensagem;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -12,11 +20,12 @@ import retrofit2.Response;
 
 public class OuvirMensagemCallback implements Callback<Mensagem>
 {
-    private final MainActivity activity;
-
-    public OuvirMensagemCallback(MainActivity activity)
+    private final Context context;
+    private EventBus eventBus;
+    public OuvirMensagemCallback(EventBus bus, Context context)
     {
-        this.activity = activity;
+        this.context = context;
+        eventBus = bus;
     }
 
     @Override
@@ -24,7 +33,9 @@ public class OuvirMensagemCallback implements Callback<Mensagem>
     {
         if(response.isSuccessful())
         {
-            activity.colocarNaLista(response.body());
+            Mensagem mensagem = response.body();
+
+            eventBus.post(new MensagemEvento(mensagem));
         }
 
     }
@@ -32,6 +43,6 @@ public class OuvirMensagemCallback implements Callback<Mensagem>
     @Override
     public void onFailure(Call<Mensagem> call, Throwable t)
     {
-        activity.ouvirMensagem();
+        eventBus.post(new FailureEvent());
     }
 }

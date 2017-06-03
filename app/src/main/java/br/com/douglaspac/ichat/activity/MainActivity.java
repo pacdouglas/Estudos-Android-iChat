@@ -2,13 +2,15 @@ package br.com.douglaspac.ichat.activity;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 
 import com.squareup.picasso.Picasso;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +23,8 @@ import br.com.douglaspac.ichat.app.ChatApplication;
 import br.com.douglaspac.ichat.callback.EnviarMensagemCallback;
 import br.com.douglaspac.ichat.callback.OuvirMensagemCallback;
 import br.com.douglaspac.ichat.component.ChatComponent;
+import br.com.douglaspac.ichat.event.FailureEvent;
+import br.com.douglaspac.ichat.event.MensagemEvento;
 import br.com.douglaspac.ichat.modelo.Mensagem;
 import br.com.douglaspac.ichat.service.ChatService;
 import butterknife.BindView;
@@ -48,6 +52,8 @@ public class MainActivity extends AppCompatActivity
     ChatService chatService;
     @Inject
     Picasso picasso;
+    @Inject
+    EventBus eventBus;
 
     private ChatComponent component;
     @Override
@@ -67,7 +73,15 @@ public class MainActivity extends AppCompatActivity
         MensagemAdapter adapter = new MensagemAdapter(idDoCliente, mensagens, this);
         listaDeMensagens.setAdapter(adapter);
 
-        ouvirMensagem();
+        eventBus.register(this);
+        ouvirMensagem(null);
+    }
+
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
+        eventBus.unregister(this);
     }
 
     @OnClick(R.id.btn_enviar)
@@ -77,17 +91,21 @@ public class MainActivity extends AppCompatActivity
                 .enqueue(new EnviarMensagemCallback());
     }
 
-    public void colocarNaLista(Mensagem mensagem)
+    @Subscribe
+    public void colocarNaLista(MensagemEvento mensagemEvento)
     {
-        mensagens.add(mensagem);
+        mensagens.add(mensagemEvento.mensagem);
         MensagemAdapter mensagemAdapter = new MensagemAdapter(idDoCliente, mensagens, this);
         listaDeMensagens.setAdapter(mensagemAdapter);
-        ouvirMensagem();
-
     }
 
-    public void ouvirMensagem()
+    @Subscribe
+    public void ouvirMensagem(MensagemEvento mensagemEvento)
     {
-        chatService.ouvirMensagem().enqueue(new OuvirMensagemCallback(this));
+        chatService.ouvirMensagem().enqueue(new OuvirMensagemCallback(eventBus, this));
+    }
+    @Subscribe
+    public void lidarCom(FailureEvent event) {
+        ouvirMensagem(null);
     }
 }
