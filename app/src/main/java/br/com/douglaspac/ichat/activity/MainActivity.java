@@ -17,6 +17,7 @@ import org.greenrobot.eventbus.Subscribe;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import javax.inject.Inject;
 
@@ -38,7 +39,7 @@ import butterknife.OnClick;
 public class MainActivity extends AppCompatActivity
 {
 
-    private int idDoCliente = 1;
+    private int idDoCliente = new Random().nextInt();
 
     @BindView(R.id.et_texto)
     EditText editText;
